@@ -1,0 +1,9 @@
+include "config.path"
+
+thread = 8
+logger = nil
+logpath = '.'
+harbor = 0
+start = "echo_main"
+bootstrap = "snlua bootstrap"
+cpath = root .. "cservice/?.so"
