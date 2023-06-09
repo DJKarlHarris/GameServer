@@ -1,0 +1,10 @@
+include "config.path"
+
+thread = 8
+logger = nil
+logpath = "."
+harbor = 0
+start = "main_ping"
+bootstrap = "snlua bootstrap"
+cpath = root .. "cservice/?.so"
+
