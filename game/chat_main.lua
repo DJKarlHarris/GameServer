@@ -1,19 +1,33 @@
 local skynet = require "skynet"
 local socket = require "skynet.socket"
 
+
+local clients = {} 
+
+--接受客户连接
 function connect(fd, addr)
     skynet.error(fd .." connect addr:" .. addr)
     socket.start(fd)
+    clients[fd] = {} 
     while(1) do
         local readdata = socket.read(fd)
         if readdata then
-            print('recv data:' .. readdata)
-            socket.write(fd, readdata)
+            broadcast(fd, 'user' .. fd .. ' say: ' .. readdata)
         else
             --connect is close
-            print(fd .. "close")
+            broadcast(fd, fd .. " is exit chatroom")
+            print(fd .. " is close")
+            client[fd] = nil
             socket.close(fd)
             return
+        end
+    end
+end
+
+function broadcast(fd, data)
+    for k, _ in pairs(clients) do
+        if k ~= fd then
+            socket.write(k, data)
         end
     end
 end

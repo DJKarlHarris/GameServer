@@ -4,6 +4,6 @@ thread = 8
 logger = nil
 logpath = '.'
 harbor = 0
-start = "echo_main"
+start = "chat_main"
 bootstrap = "snlua bootstrap"
 cpath = root .. "cservice/?.so"
