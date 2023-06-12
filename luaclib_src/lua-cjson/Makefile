@@ -18,7 +18,8 @@ PREFIX =            /usr/local
 CFLAGS =            -O3 -Wall -pedantic -DNDEBUG
 CJSON_CFLAGS =      -fpic
 CJSON_LDFLAGS =     -shared
-LUA_INCLUDE_DIR =   $(PREFIX)/include
+#LUA_INCLUDE_DIR =   $(PREFIX)/include
+LUA_INCLUDE_DIR =   /home/workspace/gameserver/GameServer/skynet/3rd/lua 
 LUA_CMODULE_DIR =   $(PREFIX)/lib/lua/$(LUA_VERSION)
 LUA_MODULE_DIR =    $(PREFIX)/share/lua/$(LUA_VERSION)
 LUA_BIN_DIR =       $(PREFIX)/bin
@@ -118,3 +119,4 @@ install-extra:
 
 clean:
 	rm -f *.o $(TARGET)
+
