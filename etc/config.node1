@@ -1,0 +1,22 @@
+thread = 8
+cpath = "./skynet/cservice/?.so"
+bootstrap = "snlua bootstrap"
+
+--bootstrap
+start = "test_json"
+harbor = 0
+
+--lua配置
+lualoader = "./skynet/lualib/loader.lua"
+--lua服务
+luaservice = "./service/?.lua;" .. "./service/?/init.lua;" .. "./skynet/service/?.lua;" .. "./test/?.lua"
+--lua库
+lua_path = "./etc/?.lua;" .. "./lualib/?.lua;" .. "./skynet/lualib/?.lua;" .. "./skynet/lualib/?/init.lua"
+--luac库
+lua_cpath = "./luaclib/?.so;" .. "./skynet/luaclib/?.so"
+
+--后台模式
+--daemon = "./skynet.pid"
+--logger = "./userlog"
+
+node = "node1"
