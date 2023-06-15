@@ -3,7 +3,7 @@ cpath = "./skynet/cservice/?.so"
 bootstrap = "snlua bootstrap"
 
 --bootstrap
-start = "test_json"
+start = "message_board"
 harbor = 0
 
 --lua配置
