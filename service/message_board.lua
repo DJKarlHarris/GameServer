@@ -29,7 +29,7 @@ function connect(fd, addr)
                     socket.write(fd, i .. " " .. v.id .. " " .. v.text .. "\r\n")
                 end
             elseif string.match(readdata, '^set') then
-                data = string.match(readdata, 'set (.-)\r\n')
+                local data = string.match(readdata, 'set (.-)\r\n')
                 db:query("insert into message_board (text) values (\'" .. data .. "\')")
             elseif string.match(readdata, '^delete') then
                 db:query("delete from message_board")

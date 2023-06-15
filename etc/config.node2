@@ -19,4 +19,4 @@ lua_cpath = "./luaclib/?.so;" .. "./skynet/luaclib/?.so"
 --daemon = "./skynet.pid"
 --logger = "./userlog"
 
-node = "node1"
+node = "node2"
