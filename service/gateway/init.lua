@@ -9,4 +9,8 @@ function service.init()
     skynet.error("[start] " .. service.name  .." ".. service.id)
 end
 
+function service.exit()
+    --todo
+end
+
 service.start(...)

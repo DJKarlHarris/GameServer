@@ -48,4 +48,22 @@ function M.start(name, id)
    skynet.start(init) 
 end
 
+function M.send(node, srv, ...) 
+    local my_node = skynet.getenv("node")
+    if my_node == node then
+        skynet.send(srv, 'lua', ...)
+    else
+        cluster.send(node, srv, ...)
+    end
+end
+
+function M.call(node, srv, ...)
+    local my_node = skynet.getenv("node")
+    if my_node == node then
+        return skynet.call(srv, 'lua', ...)
+    else 
+        return cluster.call(node, srv, ...)
+    end
+end
+
 return M
