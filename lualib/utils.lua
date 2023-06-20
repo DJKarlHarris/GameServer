@@ -37,4 +37,16 @@ function utils.json_unpack(buff)
     return cmd, msg
 end
 
+function utils.debug(...)
+    local debug_info = debug.getinfo(2)
+    local args = {...}
+    local msg = ""
+    for i = 1, #args do
+        msg = msg .. args[i]
+    end 
+
+    print(string.format("%s:%s " .. msg, debug_info.source, debug_info.currentline))
+end
+
+
 return utils

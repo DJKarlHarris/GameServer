@@ -2,11 +2,13 @@ local service = require "service"
 local skynet = require "skynet"
 local runconfig = require "runconfig"
 local socket = require "skynet.socket"
+local utils = require "utils"
 
 local str_unpack
 local str_pack
 local process_msg
 local process_buf
+local disconnect
 
 conns = {} -- fd -----> con
 players = {} -- pid ---> playergate
@@ -28,8 +30,64 @@ local playergate = function()
     return playergate
 end
 
-service.resp.say = function(address, word)
-    skynet.error('saying ' .. word)
+--login ----> gate -------> client
+service.resp.send_by_fd = function(source, fd, msg)
+    if not conns[fd] then
+        return
+    end
+    local buff = str_pack(msg[1], msg)
+    --skynet.error('recv ' .. fd .. " [" .. msg[1] .. "] " .. "{"  .. table.concat(msg, ',') .. "}")
+    utils.debug('recv ' , fd , " [" , msg[1] , "] " , "{"  , table.concat(msg, ','), "}")
+    socket.write(fd, buff)
+end
+
+--agent ------>gate ------->client
+service.resp.send = function(source, pid, msg)
+    local player_g = players[pid] 
+    if player_g == nil then
+        return
+    end
+    local c = player_g.conn
+    if not c then
+        return
+    end
+    service.resp.send_by_fd(nil, c.fd, msg)
+end
+
+service.resp.sure_agent = function(source, fd, pid, agent)
+    local conn = conns[fd]
+    if not conn then
+        skynet.call("agentMgr", "lua", "reqkick", pid, "未完成登录已下线")
+        return false
+    end
+
+    conn.pid = pid
+    
+    local player_g = playergate()
+    player_g.pid = pid
+    player_g.agent = agent
+    player_g.conn = conn 
+    players[pid] = player_g
+
+    return true
+end
+
+service.resp.kick = function(source, pid)
+    local player_g = players[pid]
+    if not player_g then
+        return
+    end
+
+    local conn = player_g.conn
+    players[pid] = nil
+
+    if not conn then
+        return
+    end
+
+    conns[conn.fd] = nil
+    disconnect(conn.fd)
+    socket.close(conn.fd)
 end
 
 -- cmd,xxx,xxx,....xxx
@@ -54,24 +112,19 @@ end
 
 --this func process msg and dispatch it to other service
 process_msg = function(fd, msg)
-    print(msg)
     local cmd, msg = str_unpack(msg)
-    skynet.error('recv ' .. fd .. " [" .. cmd .. "] " .. "{"  .. table.concat(msg, ',') .. "}")
+    --skynet.error('recv ' .. fd .. " [" .. cmd .. "] " .. "{"  .. table.concat(msg, ',') .. "}")
+    utils.debug('recv ' , fd , " [" , cmd , "] " , "{"  , table.concat(msg, ','),"}")
     local c = conns[fd]
     local pid = c.pid    
     if not pid then
-        if cmd == 'login' then
             local mynode = skynet.getenv('node')
             local nodecfg = runconfig[mynode]
             --select a login service to judge player's login
             local loginid = math.random(1, #nodecfg.login)
             local login = 'login' .. loginid
             --service.send(mynode, login, cmd, msg)
-            skynet.send(login, 'lua','client', fd, cmd, msg)
-        else
-            skynet.error(cmd .. ' is error cmd')
-            return
-        end
+            skynet.send(login, 'lua', 'client', fd, cmd, msg)
     else 
         --other msg
         local player_g = players[pid]
@@ -92,10 +145,7 @@ process_buf = function(fd, readbuf)
     end
 end
 
-local disconnect = function(fd)
-    --todo
-end
-
+--接收client数据
 local recv_loop = function(fd)
     socket.start(fd)
     local readbuf = ""
@@ -105,7 +155,7 @@ local recv_loop = function(fd)
             readbuf = readbuf .. readdata
             readbuf = process_buf(fd, readbuf)
         else
-            skynet.error('socket close' .. fd)
+            utils.debug('socket close' , fd)
             disconnect(fd)
             socket.close(fd)
             return
@@ -119,6 +169,22 @@ local connect = function(fd, addr)
     c.fd = fd
     conns[fd] = c 
     skynet.fork(recv_loop, fd)
+end
+
+--客户端断线
+--请求 agentmgr 来仲裁断开 ---->resp.kick
+disconnect = function(fd)
+    local conn = conns[fd]
+    if not conn then
+        return
+    end
+
+    local pid = conn.pid 
+    if not pid then
+        return
+    end
+    
+    skynet.send('agentMgr', 'lua', 'reqkick', pid, '断线')
 end
 
 function service.init()
@@ -137,5 +203,5 @@ function service.exit()
     --todo
 end
 
-skynet.memlimit(1 * 1024 * 1024 * 100)
+--skynet.memlimit(1 * 1024 * 1024 * 1000)
 service.start(...)

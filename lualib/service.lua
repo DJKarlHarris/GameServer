@@ -1,5 +1,6 @@
 local skynet = require "skynet"
 local cluster = require "skynet.cluster"
+require "skynet.manager"
 
 local M = {
     name = "",
@@ -37,15 +38,16 @@ end
 
 local init = function()
     skynet.dispatch("lua", dispatch)
-    if M.init() then
+    if M.init then
         M.init()
     end
 end
 
 function M.start(name, id)
-    M.name = name
-    M.id = tonumber(id)
+   M.name = name
+   M.id = tonumber(id)
    skynet.start(init) 
+   skynet.register(M.name .. M.id)
 end
 
 function M.send(node, srv, ...) 
