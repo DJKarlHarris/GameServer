@@ -33,7 +33,7 @@ local dispatch = function(session, address, cmd, ...)
         return
     end
 
-    skynet.ret(table.unpack(ret, 2))
+    skynet.retpack(table.unpack(ret, 2))
 end
 
 local init = function()
@@ -44,10 +44,14 @@ local init = function()
 end
 
 function M.start(name, id)
-   M.name = name
-   M.id = tonumber(id)
-   skynet.start(init) 
-   skynet.register(M.name .. M.id)
+    M.name = name
+    M.id = tonumber(id)
+    skynet.start(init) 
+    if id then
+        skynet.register(M.name .. M.id)
+    else
+        skynet.register(M.name)
+    end
 end
 
 function M.send(node, srv, ...) 

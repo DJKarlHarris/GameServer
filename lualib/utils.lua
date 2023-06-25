@@ -45,7 +45,8 @@ function utils.debug(...)
         msg = msg .. args[i]
     end 
 
-    print(string.format("%s:%s " .. msg, debug_info.source, debug_info.currentline))
+    --print(string.format("%s:%s " .. msg, debug_info.source, debug_info.currentline))
+    skynet.error(string.format("%s:%s " .. msg, debug_info.source, debug_info.currentline))
 end
 
 

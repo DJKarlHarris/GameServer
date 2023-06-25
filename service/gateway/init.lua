@@ -57,7 +57,7 @@ end
 service.resp.sure_agent = function(source, fd, pid, agent)
     local conn = conns[fd]
     if not conn then
-        skynet.call("agentMgr", "lua", "reqkick", pid, "未完成登录已下线")
+        skynet.call("agentmgr", "lua", "req_kick", pid, "未完成登录已下线")
         return false
     end
 
@@ -128,7 +128,7 @@ process_msg = function(fd, msg)
     else 
         --other msg
         local player_g = players[pid]
-        skynet.send(player_g.agent, 'lua', 'client', fd, cmd, msg)
+        skynet.send(player_g.agent, 'lua', 'client', cmd, msg)
     end
 end
 
@@ -173,6 +173,8 @@ end
 
 --客户端断线
 --请求 agentmgr 来仲裁断开 ---->resp.kick
+--active disconnection  --> disconnect --> my_node:req_kick --> my_node:kick --> disconnect
+--passive disconnection --> other_node:req_kick --> my_node:kick --> disconnect
 disconnect = function(fd)
     local conn = conns[fd]
     if not conn then
@@ -184,7 +186,7 @@ disconnect = function(fd)
         return
     end
     
-    skynet.send('agentMgr', 'lua', 'reqkick', pid, '断线')
+    skynet.send('agentmgr', 'lua', 'req_kick', pid, '断线')
 end
 
 function service.init()
