@@ -50,7 +50,7 @@ s.resp.req_login = function(source, pid, src_node, src_gate)
     player.agent = nil
     player.status = STATUS.LOGIN
     players[pid] = player
-    local agent = s.call(src_node, "nodemgr", "newservice", "agent", "agent", pid)
+    local agent = s.call(src_node, "nodemgr", "newservice", "agent", ".agent", pid)
     player.agent = agent
     player.status = STATUS.GAME
     return true, agent

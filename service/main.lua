@@ -10,5 +10,7 @@ skynet.start(function()
     skynet.newservice("login", "login", 2)
     skynet.newservice("agentmgr", "agentmgr")
     skynet.newservice("nodemgr", "nodemgr")
+
+    skynet.newservice("debug_console", 8000)
     skynet.exit()
 end)
