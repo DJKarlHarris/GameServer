@@ -47,7 +47,7 @@ function M.start(name, id)
     M.name = name
     M.id = tonumber(id)
     skynet.start(init) 
-    if id then
+    if M.id ~= 0 then
         skynet.register(M.name .. M.id)
     else
         skynet.register(M.name)

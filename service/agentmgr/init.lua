@@ -30,6 +30,7 @@ s.resp.req_login = function(source, pid, src_node, src_gate)
     end  
     if mplayer and mplayer.status == STATUS.LOGIN then
         utils.debug("reqlogin fail, this player is at status LOGIN")
+        return false
     end
 
     if mplayer then
