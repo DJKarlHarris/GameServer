@@ -1,6 +1,7 @@
 local skynet = require "skynet"
 local cluster = require "skynet.cluster"
 local runconfig = require "runconfig"
+require "skynet.manager"
 
 skynet.start(function()
     local my_node = skynet.getenv("node")
@@ -24,13 +25,14 @@ skynet.start(function()
         skynet.newservice("agentmgr", "agentmgr", 0)
     else 
         local proxy = cluster.proxy(agent_node, "agentmgr")
-        skynet.name('agentmgr', proxy)
+        skynet.name("agentmgr", proxy)
     end
 
     skynet.newservice("testproto", "testproto", 0)
     --skynet.newservice("testproto2", "testproto2")
 
-    skynet.newservice("debug_console", 8000)
+    local debug_port = 9000 + tonumber(string.sub(my_node, -1))
+    skynet.newservice("debug_console", debug_port)
 
     skynet.exit()
 end)
