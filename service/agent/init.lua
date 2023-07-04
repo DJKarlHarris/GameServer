@@ -1,23 +1,31 @@
 local skynet = require "skynet"
 local s = require "service"
 local utils = require "utils"
+local runconfig = require "runconfig"
 
 s.client = {}
-s.gate = nil
+s.scene_node = nil
 
-s.client.work = function(source, msg)
-    s.data.coin = s.data.coin + 1 
-    return {'work', s.data.coin}
-end
+require "scene"
+require "work"
 
+--------------------service cmd ----------------------------
 s.resp.kick = function(source)
+    --exit battle scene
+    s.leave_scene()
+
     --todo
     --save data
+
     skynet.sleep(200)
 end
 
 s.resp.exit = function(source)
     skynet.exit()
+end
+
+s.resp.send = function(source, msg)
+    skynet.send(s.gate, "lua", "send", s.id, msg)  
 end
 
 s.resp.client = function(source, cmd, msg)
@@ -28,13 +36,14 @@ s.resp.client = function(source, cmd, msg)
             skynet.send(source, 'lua', 'send', s.id, ret_msg)
         end
     else
-        utils.debug("s.resp.client fail ", cmd)
+        utils.debug("s.resp.client fail [", cmd, "]")
     end
 end
 
 --load data
 s.init = function()
     skynet.sleep(200)
+    
     s.data = {
         coin = 100,
         hp = 200,
@@ -47,4 +56,3 @@ s.exit = function()
 end
 
 s.start(...)
-

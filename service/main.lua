@@ -28,7 +28,11 @@ skynet.start(function()
         skynet.name("agentmgr", proxy)
     end
 
-    skynet.newservice("testproto", "testproto", 0)
+    for _, sid in pairs(runconfig.scene[my_node]) do
+        local srv = skynet.newservice("scene", "scene", sid)
+    end
+
+    --skynet.newservice("testproto", "testproto", 0)
     --skynet.newservice("testproto2", "testproto2")
 
     local debug_port = 9000 + tonumber(string.sub(my_node, -1))
