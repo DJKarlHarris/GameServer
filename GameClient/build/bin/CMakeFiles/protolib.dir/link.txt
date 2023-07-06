@@ -1,0 +1,2 @@
+/usr/bin/ar qc libprotolib.a CMakeFiles/protolib.dir/proto_generate/login.pb.cc.o CMakeFiles/protolib.dir/proto_generate/person.pb.cc.o
+/usr/bin/ranlib libprotolib.a
