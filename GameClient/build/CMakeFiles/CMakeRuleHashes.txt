@@ -1,3 +1,0 @@
-# Hashes of file build rules.
-d43a78ee0f32a5a79f1c33b83ffcc0b9 bin/proto_generate/login.pb.cc
-f785451e6fa8c431c563b980e6420c57 bin/proto_generate/person.pb.cc

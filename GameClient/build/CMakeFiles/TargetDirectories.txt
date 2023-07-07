@@ -1,6 +1,0 @@
-/home/workspace/GameServer/GameClient/build/CMakeFiles/edit_cache.dir
-/home/workspace/GameServer/GameClient/build/CMakeFiles/rebuild_cache.dir
-/home/workspace/GameServer/GameClient/build/bin/CMakeFiles/protolib.dir
-/home/workspace/GameServer/GameClient/build/bin/CMakeFiles/main.dir
-/home/workspace/GameServer/GameClient/build/bin/CMakeFiles/edit_cache.dir
-/home/workspace/GameServer/GameClient/build/bin/CMakeFiles/rebuild_cache.dir
