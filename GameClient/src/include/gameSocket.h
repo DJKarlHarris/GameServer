@@ -16,6 +16,10 @@ namespace karl {
     void sendThread(int sockfd);
 
     void recvThread(int sockfd);
+
+    int sendMsg(int fd, const char* data, int length);
+
+    int writeN(int fd, const char* data, int length);
 }
 
 #endif

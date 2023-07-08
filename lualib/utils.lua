@@ -19,6 +19,7 @@ end
 -- binary data ------> string data------> lua data or other data
 -- packet len in buff has been removed 
 function utils.json_unpack(buff)
+    -- [cmdsize] [cmd] [msg]
     -- i2 cx cx
     local len = string.len(buff)
     --local u_len = string.
@@ -31,8 +32,8 @@ function utils.json_unpack(buff)
 
     local isok, msg = pcall(cjson.decode, bodyBuff)
     if not isok or not msg or not msg._cmd or not msg._cmd == cmd then
-            print("error")
-            return
+        print("error")
+        return
     end
     return cmd, msg
 end

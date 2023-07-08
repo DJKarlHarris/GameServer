@@ -37,11 +37,10 @@ namespace karl {
             std::cin.getline(message, sizeof(message));
 
             std::string str(message);
-            str.push_back('\r');
-            str.push_back('\n');
             std::strcpy(message, str.c_str());
 
-            ssize_t bytesSent = send(sockfd, message, strlen(message), 0);
+            //ssize_t bytesSent = send(sockfd, message, strlen(message), 0);
+            ssize_t bytesSent = sendMsg(sockfd, message, strlen(message));
             if(bytesSent == -1) {
                 std::cerr << "Failed to send data" << std::endl;
                 break;
@@ -82,4 +81,38 @@ namespace karl {
 
         std::cout << "recv Thread is exiting" << std::endl;
     }
+
+    int sendMsg(int fd, const char* data, int length) {
+        //开辟内存
+        char* buf = (char*)malloc(length + 2);
+
+        //做包头
+        int header = htons(length);
+        //封包
+        memcpy(buf, &header, 2);
+        memcpy(buf + 2, data, length);
+
+        //发送N字节数据
+        int ret = writeN(fd, buf, length + 2);
+        return ret;
+    }
+
+    int writeN(int fd, const char* data, int length) {
+        int left = length;
+        int writelen = 0;
+        const char* ptr = data;
+        while(left) {
+            writelen = write(fd, ptr, left);
+            if(writelen == -1) {
+                perror("write");
+                return -1;
+            } else if(writelen == 0) {
+                continue;
+            }
+            ptr += writelen;
+            left -= writelen;
+        }
+        return length;
+    }
+
 }
