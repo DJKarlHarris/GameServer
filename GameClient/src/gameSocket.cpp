@@ -7,6 +7,9 @@
 #include <fcntl.h>
 #include <thread>
 #include <pthread.h>
+#include <sstream>
+#include <vector>
+#include "./include/protocol.h"
 
 namespace karl {
 
@@ -30,17 +33,24 @@ namespace karl {
             std::cerr << "Invalid address !" << std::endl;
         }
     }
-
+    
     void sendThread(int sockfd) {
         while(!stopFlag) {
             char message[1024];
+            // id xx xxx 
             std::cin.getline(message, sizeof(message));
-
-            std::string str(message);
-            std::strcpy(message, str.c_str());
+            std::istringstream iss(message);
+            std::vector<std::string> words;
+            std::string word;
+            while(iss >> word) {
+                words.push_back(word); 
+            }
+            
+            std::string package = login_request_pack(words);
 
             //ssize_t bytesSent = send(sockfd, message, strlen(message), 0);
-            ssize_t bytesSent = sendMsg(sockfd, message, strlen(message));
+            ssize_t bytesSent = sendMsg(sockfd, package.data(), package.length());
+
             if(bytesSent == -1) {
                 std::cerr << "Failed to send data" << std::endl;
                 break;
@@ -82,11 +92,12 @@ namespace karl {
         std::cout << "recv Thread is exiting" << std::endl;
     }
 
+    //包长 + 协议号 + proto数据
     int sendMsg(int fd, const char* data, int length) {
         //开辟内存
         char* buf = (char*)malloc(length + 2);
 
-        //做包头
+        //做包头(包长度)
         int header = htons(length);
         //封包
         memcpy(buf, &header, 2);
