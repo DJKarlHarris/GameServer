@@ -1,8 +1,13 @@
 syntax = "proto2";
 package login;
 
-message Login {
+enum msgId {
+    LOGIN_REQUEST = 1001;
+    LOGIN_RESPONDE = 1002;
+}
+
+message login_request {
     required int32 id = 1;
     required string pw = 2;
-    optional int32 result = 3;
+    optional int32 result = 3; 
 }

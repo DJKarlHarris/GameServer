@@ -1,10 +1,10 @@
 local service = require "service"
 local skynet = require "skynet"
 local runconfig = require "runconfig"
---local socket = require "skynet.socket"
 local utils = require "utils"
 local netpack = require "skynet.netpack"
 local socketdriver = require "skynet.socketdriver"
+local pb = require "load_protocol"
 
 local str_unpack
 local str_pack
@@ -39,7 +39,7 @@ service.resp.send_by_fd = function(source, fd, msg)
     end
     local buff = str_pack(msg[1], msg)
     --skynet.error('recv ' .. fd .. " [" .. msg[1] .. "] " .. "{"  .. table.concat(msg, ',') .. "}")
-    utils.debug('recv ' , fd , " [" , msg[1] , "] " , "{"  , table.concat(msg, ','), "}")
+    utils.debug('send ' , fd , " [" , msg[1] , "] " , "{"  , table.concat(msg, ','), "}")
     socketdriver.send(fd, buff)
 end
 
@@ -89,48 +89,59 @@ service.resp.kick = function(source, pid)
 
     conns[conn.fd] = nil
     disconnect(conn.fd)
-    socket.close(conn.fd)
+    socketdriver.close(conn.fd)
 end
 
 -- cmd,xxx,xxx,....xxx
-str_unpack = function(msg)
-    local data = {}
-    while(1) do
-        local token, rest = string.match(msg, '(.-),(.*)')
-        if token then
-            table.insert(data, token)
-            msg = rest
-        else 
-            table.insert(data, msg)
-            break
-        end
-    end
-    return data[1], data
-end
+--str_unpack = function(msg)
+--    local data = {}
+--    while(1) do
+--        local token, rest = string.match(msg, '(.-),(.*)')
+--        if token then
+--            table.insert(data, token)
+--            msg = rest
+--        else 
+--            table.insert(data, msg)
+--            break
+--        end
+--    end
+--    return data[1], data
+--end
 
 str_pack = function(cmd, msg)
     return table.concat(msg, ",") .. "\r\n" 
 end
 
+
 --this func process msg and dispatch it to other service
-process_msg = function(fd, msg)
-    local cmd, msg = str_unpack(msg)
+process_msg = function(fd, msgId, proto_data)
+    --local cmd, msg = str_unpack(msg)
+
     --skynet.error('recv ' .. fd .. " [" .. cmd .. "] " .. "{"  .. table.concat(msg, ',') .. "}")
-    utils.debug('recv ' , fd , " [" , cmd , "] " , "{"  , table.concat(msg, ','),"}")
+    --utils.debug('recv ' , fd , " [" , cmd , "] " , "{"  , table.concat(msg, ','),"}")
     local c = conns[fd]
     local pid = c.pid    
+    local msg_name = id2msg[msgId]
+    local cmd = id2cmd[msgId]
+
+    local data = {}
+    if proto_data then
+        data = pb.decode(msg_name, proto_data)
+    end
+
     if not pid then
-            local mynode = skynet.getenv('node')
-            local nodecfg = runconfig[mynode]
-            --select a login service to judge player's login
-            local loginid = math.random(1, #nodecfg.login)
-            local login = 'login' .. loginid
-            --service.send(mynode, login, cmd, msg)
-            skynet.send(login, 'lua', 'client', fd, cmd, msg)
+        local mynode = skynet.getenv('node')
+        local nodecfg = runconfig[mynode]
+        --select a login service to judge player's login
+        local loginid = math.random(1, #nodecfg.login)
+        local login = 'login' .. loginid
+        --service.send(mynode, login, cmd, msg)
+        
+        skynet.send(login, 'lua', 'client', fd, cmd, data)
     else 
         --other msg
         local player_g = players[pid]
-        skynet.send(player_g.agent, 'lua', 'client', cmd, msg)
+        skynet.send(player_g.agent, 'lua', 'client', cmd, data)
     end
 end
 
@@ -202,9 +213,21 @@ local process_connect = function(fd, addr)
     socketdriver.start(fd)
 end
 
+--msg = [msgid 2B] [protodata]
 local process_data = function(fd, msg ,sz) 
     local str = netpack.tostring(msg, sz)
-    process_msg(fd, str)  
+
+    local len = string.len(str)
+    local proto_len = len - 2
+    local format = string.format("> i2 c%d", proto_len)
+    
+    local msgId, proto_data = string.unpack(format, str)
+    if id2msg[msgId] == nil or id2cmd[msgId] == nil then
+        service.resp.send_by_fd(nil, fd, {'协议号不存在'})
+        return  
+    end
+
+    process_msg(fd, msgId, proto_data)  
     skynet.error("recv from fd: " .. fd .. " str: " .. str)
 end
 
@@ -215,6 +238,7 @@ local process_more = function(fd)
 end
 
 local process_close = function(fd)
+    disconnect(fd)
     skynet.error("close fd:" .. fd)
 end
 
@@ -266,6 +290,7 @@ function service.init()
 end
 
 function service.exit()
+    netpack.clear(queue)
     --todo
 end
 

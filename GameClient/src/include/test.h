@@ -7,20 +7,19 @@
 
 namespace karl {
     void test_proto() {
-        std::cout << "helloworld" << std::endl;
-        login::Login login;
-        login.set_id(1);
-        login.set_pw("123");
-        login.set_result(1);
+        login::login_request encode_login_request;
+        encode_login_request.set_id(1);
+        encode_login_request.set_pw("123");
+        encode_login_request.set_result(1);
 
         std::string data; 
-        login.SerializeToString(&data);
+        encode_login_request.SerializeToString(&data);
 
 
-        login::Login decode_login;
-        decode_login.ParseFromString(data);
-        std::cout << decode_login.id() << std::endl;
-        std::cout << decode_login.pw() << std::endl;
+        login::login_request decode_login_request;
+        decode_login_request.ParseFromString(data);
+        std::cout << decode_login_request.id() << std::endl;
+        std::cout << decode_login_request.pw() << std::endl;
 
         google::protobuf::ShutdownProtobufLibrary();
     }

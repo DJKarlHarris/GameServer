@@ -38,7 +38,7 @@ s.leave_scene = function()
 end
 
 --------------------client--------------------------------
-s.client.enter = function(source, msg)
+s.client.scene_enter = function(source, msg)
     if s.sname then
         return {"enter", 1, "已经在场景"}
     end    
@@ -58,13 +58,16 @@ s.client.enter = function(source, msg)
     return nil 
 end
 
-s.client.leave = function(source, msg)
-    s.send(s.snode, s.sname, "leave", msg[2])
+s.client.scene_leave = function(source, msg)
+    s.send(s.snode, s.sname, "leave", msg.pid)
+    s.sname = nil
+    s.snode = nil
+    return {"leave","退出场景服务器"}
 end
 
-s.client.shift = function(source, msg)
-    local x = msg[2] or 0
-    local y = msg[3] or 0
+s.client.scene_shift = function(source, msg)
+    local x = msg.speedx or 0
+    local y = msg.speedy or 0
     s.send(s.snode, s.sname, "shift", s.id, x, y)    
 end
 

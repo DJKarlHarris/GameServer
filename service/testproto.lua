@@ -1,26 +1,24 @@
-local skynet = require "skynet"
-local s = require "service"
+package.path = "./lualib/?.lua"
+package.cpath = "./luaclib/?.so"
 local pb = require "load_protocol"
 
-s.init = function()
+local test = function()
     
     local data = {
         name = "tom",
-        age  = 18,
-        contacts = {
-            { name = "alice", phonenumber = 12312341234 },
-            { name = "bob",   phonenumber = 45645674567 }
-        }
+        sex = 1,
+        number = 123
     }
     --local file = io.open('./proto/login.pb')
     --io.input(file)
     
     --pb.load(pbio.read('./proto/login.pb'))
-    local bytes = assert(pb.encode("person.Person", data))  
-    local data2 = pb.decode("person.Person", bytes)
+    local bytes = assert(pb.encode("login.login_request", data))  
 
+
+    local data2 = pb.decode("person.Person", bytes)
     --print(require "serpent".block(data2))
-    print(data2.name)
+    --print(data2.name)
 end
 
-s.start(...)
+test()

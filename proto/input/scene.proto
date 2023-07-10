@@ -1,0 +1,21 @@
+syntax = "proto2";
+package scene;
+
+enum msgId {
+    SCENE_ENTER = 3001;
+    SCENE_LEAVE = 3002;
+    SCENE_SHIFT = 3003;
+}
+
+message scene_enter {
+
+}
+
+message scene_leave {
+    required int32 pid = 1; 
+}
+
+message scene_shift {
+    required int32 speedx = 1;
+    required int32 speedy = 2; 
+}

@@ -28,6 +28,7 @@ s.resp.send = function(source, msg)
     skynet.send(s.gate, "lua", "send", s.id, msg)  
 end
 
+--客户消息分发
 s.resp.client = function(source, cmd, msg)
     s.gate = source
     if s.client[cmd] then

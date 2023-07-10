@@ -7,6 +7,16 @@
 #include <fcntl.h>
 #include <thread>
 #include <pthread.h>
+#include <sstream>
+#include <vector>
+#include "./include/protocol.h"
+
+#define PACK_FUN_MAP(XX) \
+        XX(login::LOGIN_REQUEST, login_request_pack) \
+        XX(work::WORK_REQUEST, work_request_pack) \
+        XX(scene::SCENE_ENTER, scene_enter_pack) \
+        XX(scene::SCENE_LEAVE, scene_leave_pack) \
+        XX(scene::SCENE_SHIFT, scene_shift_pack)
 
 namespace karl {
 
@@ -31,16 +41,37 @@ namespace karl {
         }
     }
 
+    // msg_id ----> pack_func 根据msg_id 调用对应的封包函数
+    std::string packMessage(const short& msg_id, const std::vector<std::string>& data) {
+        switch(msg_id) {
+#define XX(msg_id, pack_func) case msg_id : return pack_func(data);
+        PACK_FUN_MAP(XX);
+#undef XX
+        }
+        return std::to_string(msg_id);
+    }
+    
+
     void sendThread(int sockfd) {
         while(!stopFlag) {
             char message[1024];
+            // id xx xxx 
             std::cin.getline(message, sizeof(message));
+            std::istringstream iss(message);
+            std::vector<std::string> data;
+            std::string word;
+            while(iss >> word) {
+                data.push_back(word); 
+            }
 
-            std::string str(message);
-            std::strcpy(message, str.c_str());
+            std::string package{};
+            short msg_id= stoi(data[0]);
+
+            package = packMessage(msg_id, data);
 
             //ssize_t bytesSent = send(sockfd, message, strlen(message), 0);
-            ssize_t bytesSent = sendMsg(sockfd, message, strlen(message));
+            ssize_t bytesSent = sendMsg(sockfd, package.data(), package.length());
+
             if(bytesSent == -1) {
                 std::cerr << "Failed to send data" << std::endl;
                 break;
@@ -82,11 +113,12 @@ namespace karl {
         std::cout << "recv Thread is exiting" << std::endl;
     }
 
+    //包长 + 协议号 + proto数据
     int sendMsg(int fd, const char* data, int length) {
         //开辟内存
         char* buf = (char*)malloc(length + 2);
 
-        //做包头
+        //做包头(包长度)
         int header = htons(length);
         //封包
         memcpy(buf, &header, 2);

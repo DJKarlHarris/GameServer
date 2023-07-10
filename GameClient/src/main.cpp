@@ -14,6 +14,8 @@
 std::set<std::thread::id> threads;
 int main(){
 
+    //karl::test_proto();
+
     // register signal
     std::signal(SIGINT, karl::signalHandler);
 

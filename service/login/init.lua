@@ -4,10 +4,13 @@ local utils = require "utils"
 
 s.client = {}
 
-s.client.login = function(source, fd, msg)
+s.client.login_request = function(source, fd, msg)
     --utils.debug('recv ' , fd , " [" , msg[1] , "] " , "{"  , table.concat(msg, ',') , "}")
-    local pid = tonumber(msg[2])
-    local pwd = tonumber(msg[3])
+    local pid = tonumber(msg.id)
+    local pwd = tonumber(msg.pw)
+    
+    utils.debug(pid, " ", pwd)
+    
     local gate = source
     local my_node = skynet.getenv('node')
     
@@ -35,7 +38,6 @@ s.client.login = function(source, fd, msg)
     utils.debug('succ login ', pid)
     return {'login', -1, 'succ login '}
 end
-
 
 
 --gate ----> login 额外一层转发
