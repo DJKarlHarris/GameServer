@@ -39,7 +39,7 @@ service.resp.send_by_fd = function(source, fd, msg)
     end
     local buff = str_pack(msg[1], msg)
     --skynet.error('recv ' .. fd .. " [" .. msg[1] .. "] " .. "{"  .. table.concat(msg, ',') .. "}")
-    utils.debug('recv ' , fd , " [" , msg[1] , "] " , "{"  , table.concat(msg, ','), "}")
+    utils.debug('send ' , fd , " [" , msg[1] , "] " , "{"  , table.concat(msg, ','), "}")
     socketdriver.send(fd, buff)
 end
 
@@ -123,7 +123,11 @@ process_msg = function(fd, msgId, proto_data)
     local pid = c.pid    
     local msg_name = id2msg[msgId]
     local cmd = id2cmd[msgId]
-    local data = pb.decode(msg_name, proto_data)
+
+    local data = {}
+    if proto_data then
+        data = pb.decode(msg_name, proto_data)
+    end
 
     if not pid then
         local mynode = skynet.getenv('node')
@@ -209,13 +213,19 @@ local process_connect = function(fd, addr)
     socketdriver.start(fd)
 end
 
+--msg = [msgid 2B] [protodata]
 local process_data = function(fd, msg ,sz) 
     local str = netpack.tostring(msg, sz)
 
     local len = string.len(str)
     local proto_len = len - 2
     local format = string.format("> i2 c%d", proto_len)
+    
     local msgId, proto_data = string.unpack(format, str)
+    if id2msg[msgId] == nil or id2cmd[msgId] == nil then
+        service.resp.send_by_fd(nil, fd, {'协议号不存在'})
+        return  
+    end
 
     process_msg(fd, msgId, proto_data)  
     skynet.error("recv from fd: " .. fd .. " str: " .. str)
@@ -228,6 +238,7 @@ local process_more = function(fd)
 end
 
 local process_close = function(fd)
+    disconnect(fd)
     skynet.error("close fd:" .. fd)
 end
 

@@ -9,6 +9,8 @@ s.client.login_request = function(source, fd, msg)
     local pid = tonumber(msg.id)
     local pwd = tonumber(msg.pw)
     
+    utils.debug(pid, " ", pwd)
+    
     local gate = source
     local my_node = skynet.getenv('node')
     

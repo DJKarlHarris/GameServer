@@ -3,7 +3,9 @@ local pbio = require "pb.io"
 
 local fileName = {
     "login",
-    "person"
+    "person",
+    "work",
+    "scene"
 }
 
 id2msg = {}
