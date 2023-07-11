@@ -1,5 +1,6 @@
 local skynet = require "skynet"
 local cluster = require "skynet.cluster"
+local sharedata = require "skynet.sharedata"
 require "skynet.manager"
 
 local M = {
@@ -41,6 +42,9 @@ local init = function()
     if M.init then
         M.init()
     end
+    id2msg = sharedata.query('id2msg')
+    id2cmd = sharedata.query('id2cmd')
+    msg2id = sharedata.query('msg2id')
 end
 
 function M.start(name, id)

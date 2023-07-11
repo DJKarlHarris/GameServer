@@ -1,6 +1,7 @@
 
-D
+I
 input/work.protowork"
-work_request*
-msgId
+work_request*
+
+message_id
 WORK_REQUESTÑ

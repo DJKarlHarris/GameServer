@@ -14,9 +14,8 @@ s.resp.kick = function(source)
     --exit battle scene
     s.leave_scene()
 
-    --todo
     --save data
-
+    s.exit()
     skynet.sleep(200)
 end
 
@@ -44,7 +43,7 @@ end
 --load data
 s.init = function()
     skynet.sleep(200)
-    
+        
     s.data = {
         coin = 100,
         hp = 200,
@@ -53,7 +52,7 @@ end
 
 --save data
 s.exit = function()
-
+    --todo
 end
 
 s.start(...)

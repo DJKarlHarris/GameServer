@@ -5,8 +5,6 @@
 #include <thread>
 #include <csignal>
 
-#include "../build/bin/proto_generate/login.pb.h"
-#include "../build/bin/proto_generate/person.pb.h"
 #include "./include/test.h"
 #include "include/gameSocket.h"
 

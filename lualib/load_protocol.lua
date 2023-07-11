@@ -1,6 +1,4 @@
-local pb = require "pb"
-local pbio = require "pb.io"
-
+local sharedata = require "skynet.sharedata"
 local fileName = {
     "login",
     "person",
@@ -19,13 +17,14 @@ local function up2low(str)
     return result
 end
 
-
 local loadPb = function()
+    local pb = require "pb"
+    local pbio = require "pb.io"
     for _, name in pairs(fileName) do
         local proto_name = './proto/output/' .. name .. '.pb'
-        pb.load(pbio.read(proto_name))
+        assert(pb.load(pbio.read(proto_name)))
 
-        local msgFileds = name .. ".msgId"
+        local msgFileds = name .. ".message_id"
         
         for f_name, f_number in pb.fields(msgFileds) do
             local cmd = up2low(f_name)
@@ -35,14 +34,17 @@ local loadPb = function()
             msg2id[msg_name] = f_number
         end   
     end
-    
+
+    --share pb to other service
+    pb.share_state()
     --for name, basename, type in pb.types() do
     --    print(name .. " " ..  basename .. " " .. type)
     --end
 end
 
-
 loadPb()
+sharedata.new('id2msg', id2msg)
+sharedata.new('id2cmd', id2cmd)
+sharedata.new('msg2id', msg2id)
 
-return pb
 

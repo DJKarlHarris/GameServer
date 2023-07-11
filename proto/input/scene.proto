@@ -1,7 +1,7 @@
 syntax = "proto2";
 package scene;
 
-enum msgId {
+enum message_id {
     SCENE_ENTER = 3001;
     SCENE_LEAVE = 3002;
     SCENE_SHIFT = 3003;
