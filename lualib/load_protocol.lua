@@ -24,7 +24,7 @@ local loadPb = function()
         local proto_name = './proto/output/' .. name .. '.pb'
         assert(pb.load(pbio.read(proto_name)))
 
-        local msgFileds = name .. ".msgId"
+        local msgFileds = name .. ".message_id"
         
         for f_name, f_number in pb.fields(msgFileds) do
             local cmd = up2low(f_name)
