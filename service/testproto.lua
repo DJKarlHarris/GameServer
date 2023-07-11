@@ -1,6 +1,7 @@
 package.path = "./lualib/?.lua"
 package.cpath = "./luaclib/?.so"
-local pb = require "load_protocol"
+--require "load_protocol"
+local pb = require "pb"
 
 local test = function()
     

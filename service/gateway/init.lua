@@ -4,7 +4,7 @@ local runconfig = require "runconfig"
 local utils = require "utils"
 local netpack = require "skynet.netpack"
 local socketdriver = require "skynet.socketdriver"
-local pb = require "load_protocol"
+local pb = require "pb"
 
 local str_unpack
 local str_pack
@@ -145,45 +145,6 @@ process_msg = function(fd, msgId, proto_data)
     end
 end
 
---process_buf = function(fd, readbuf)
---    while(1) do
---        local msg, rest = string.match(readbuf, '(.-)\r\n(.*)')
---        if msg then
---            --process msg
---            readbuf = rest
---            process_msg(fd, msg) 
---        else
---            return readbuf
---        end        
---    end
---end
-
---接收client数据
---local recv_loop = function(fd)
---    socket.start(fd)
---    local readbuf = ""
---    while(true) do
---        local readdata = socket.read(fd)
---        if readdata then
---            readbuf = readbuf .. readdata
---            readbuf = process_buf(fd, readbuf)
---        else
---            utils.debug('socket close' , fd)
---            disconnect(fd)
---            socket.close(fd)
---            return
---        end
---    end
---end
-
---local connect = function(fd, addr)
---    --todo
---    local c = conn()
---    c.fd = fd
---    conns[fd] = c 
---    skynet.fork(recv_loop, fd)
---end
-
 --客户端断线
 --请求 agentmgr 来仲裁断开 ---->resp.kick
 --active disconnection  --> disconnect --> my_node:req_kick --> my_node:kick --> disconnect
@@ -289,6 +250,7 @@ function service.init()
     socketdriver.start(listenfd)
 end
 
+--啥时候调用捏
 function service.exit()
     netpack.clear(queue)
     --todo

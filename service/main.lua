@@ -6,6 +6,7 @@ require "skynet.manager"
 skynet.start(function()
     local my_node = skynet.getenv("node")
     local nodecfg = runconfig[my_node]
+    require "load_protocol"
 
     skynet.newservice("nodemgr", "nodemgr", 0)
 
@@ -38,5 +39,8 @@ skynet.start(function()
     local debug_port = 9000 + tonumber(string.sub(my_node, -1))
     skynet.newservice("debug_console", debug_port)
 
-    skynet.exit()
+
 end)
+
+
+
